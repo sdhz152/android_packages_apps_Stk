@@ -1454,27 +1454,30 @@ public class StkAppService extends Service implements Runnable {
     }
 
     private void launchTextDialog(int slotId) {
-        CatLog.d(LOG_TAG, "launchTextDialog, slotId: " + slotId);
-        Intent newIntent = new Intent();
-        String targetActivity = STK_DIALOG_ACTIVITY_NAME;
-        int action = getFlagActivityNoUserAction(InitiatedByUserAction.unknown, slotId);
-        String uriString = STK_DIALOG_URI + System.currentTimeMillis();
-        //Set unique URI to create a new instance of activity for different slotId.
-        Uri uriData = Uri.parse(uriString);
-        if (newIntent != null) {
-            newIntent.setClassName(PACKAGE_NAME, targetActivity);
-            newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                    | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
-                    | getFlagActivityNoUserAction(InitiatedByUserAction.unknown, slotId));
-            newIntent.setData(uriData);
-            newIntent.putExtra("TEXT", mStkContext[slotId].mCurrentCmd.geTextMessage());
-            newIntent.putExtra(SLOT_ID, slotId);
-            startActivity(newIntent);
-            // For display texts with immediate response, send the terminal response
-            // immediately. responseNeeded will be false, if display text command has
-            // the immediate response tlv.
-            if (!mStkContext[slotId].mCurrentCmd.geTextMessage().responseNeeded) {
-                sendResponse(RES_ID_CONFIRM, slotId, true);
+        if(Settings.System.getInt(mContext.getContentResolver(),
+                    Settings.System.DISABLE_STK_DIALOG_AUTO_OPEN, 0) == 1){
+	       CatLog.d(LOG_TAG, "launchTextDialog, slotId: " + slotId);
+	       Intent newIntent = new Intent();
+	       String targetActivity = STK_DIALOG_ACTIVITY_NAME;
+	       int action = getFlagActivityNoUserAction(InitiatedByUserAction.unknown, slotId);
+	       String uriString = STK_DIALOG_URI + System.currentTimeMillis();
+	       //Set unique URI to create a new instance of activity for different slotId.
+	       Uri uriData = Uri.parse(uriString);
+	       if (newIntent != null) {
+	           newIntent.setClassName(PACKAGE_NAME, targetActivity);
+	           newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+	                   | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+	                   | getFlagActivityNoUserAction(InitiatedByUserAction.unknown, slotId));
+	           newIntent.setData(uriData);
+	           newIntent.putExtra("TEXT", mStkContext[slotId].mCurrentCmd.geTextMessage());
+	           newIntent.putExtra(SLOT_ID, slotId);
+	           startActivity(newIntent);
+	           // For display texts with immediate response, send the terminal response
+	           // immediately. responseNeeded will be false, if display text command has
+	           // the immediate response tlv.
+	           if (!mStkContext[slotId].mCurrentCmd.geTextMessage().responseNeeded) {
+	               sendResponse(RES_ID_CONFIRM, slotId, true);
+	            }
             }
         }
     }
@@ -1616,23 +1619,26 @@ public class StkAppService extends Service implements Runnable {
     }
 
     private void launchConfirmationDialog(TextMessage msg, int slotId) {
-        msg.title = mStkContext[slotId].lastSelectedItem;
-        Intent newIntent = new Intent();
-        String targetActivity = STK_DIALOG_ACTIVITY_NAME;
-        String uriString = STK_DIALOG_URI + System.currentTimeMillis();
-        //Set unique URI to create a new instance of activity for different slotId.
-        Uri uriData = Uri.parse(uriString);
+        if(Settings.System.getInt(mContext.getContentResolver(),
+                    Settings.System.DISABLE_STK_DIALOG_AUTO_OPEN, 0) == 1){
+	       msg.title = mStkContext[slotId].lastSelectedItem;
+	       Intent newIntent = new Intent();
+	       String targetActivity = STK_DIALOG_ACTIVITY_NAME;
+	       String uriString = STK_DIALOG_URI + System.currentTimeMillis();
+	       //Set unique URI to create a new instance of activity for different slotId.
+	       Uri uriData = Uri.parse(uriString);
 
-        if (newIntent != null) {
-            newIntent.setClassName(this, targetActivity);
-            newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                    | Intent.FLAG_ACTIVITY_NO_HISTORY
-                    | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
-                    | getFlagActivityNoUserAction(InitiatedByUserAction.unknown, slotId));
-            newIntent.putExtra("TEXT", msg);
-            newIntent.putExtra(SLOT_ID, slotId);
-            newIntent.setData(uriData);
-            startActivity(newIntent);
+	       if (newIntent != null) {
+ 	          newIntent.setClassName(this, targetActivity);
+	           newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+	                   | Intent.FLAG_ACTIVITY_NO_HISTORY
+	                   | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+	                   | getFlagActivityNoUserAction(InitiatedByUserAction.unknown, slotId));
+	           newIntent.putExtra("TEXT", msg);
+	           newIntent.putExtra(SLOT_ID, slotId);
+	           newIntent.setData(uriData);
+	           startActivity(newIntent);
+           }
         }
     }
 
