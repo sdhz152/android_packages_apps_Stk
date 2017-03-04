@@ -1454,8 +1454,8 @@ public class StkAppService extends Service implements Runnable {
     }
 
     private void launchTextDialog(int slotId) {
-        if(Settings.System.getInt(mContext.getContentResolver(),
-                    Settings.System.DISABLE_STK_DIALOG_AUTO_OPEN, 0) == 1){
+        boolean StkDisplayDialog = Settings.System.getInt(mContext.getContentResolver(),
+                    Settings.System.DISABLE_STK_DIALOG_AUTO_OPEN, 0) == 1;
 	       CatLog.d(LOG_TAG, "launchTextDialog, slotId: " + slotId);
 	       Intent newIntent = new Intent();
 	       String targetActivity = STK_DIALOG_ACTIVITY_NAME;
@@ -1463,7 +1463,7 @@ public class StkAppService extends Service implements Runnable {
 	       String uriString = STK_DIALOG_URI + System.currentTimeMillis();
 	       //Set unique URI to create a new instance of activity for different slotId.
 	       Uri uriData = Uri.parse(uriString);
-	       if (newIntent != null) {
+	       if (newIntent != null && StkDisplayDialog) {
 	           newIntent.setClassName(PACKAGE_NAME, targetActivity);
 	           newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
 	                   | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
@@ -1477,7 +1477,6 @@ public class StkAppService extends Service implements Runnable {
 	           // the immediate response tlv.
 	           if (!mStkContext[slotId].mCurrentCmd.geTextMessage().responseNeeded) {
 	               sendResponse(RES_ID_CONFIRM, slotId, true);
-	            }
             }
         }
     }
@@ -1619,8 +1618,8 @@ public class StkAppService extends Service implements Runnable {
     }
 
     private void launchConfirmationDialog(TextMessage msg, int slotId) {
-        if(Settings.System.getInt(mContext.getContentResolver(),
-                    Settings.System.DISABLE_STK_DIALOG_AUTO_OPEN, 0) == 1){
+        boolean StkDisplayDialog = Settings.System.getInt(mContext.getContentResolver(),
+                    Settings.System.DISABLE_STK_DIALOG_AUTO_OPEN, 0) == 1;
 	       msg.title = mStkContext[slotId].lastSelectedItem;
 	       Intent newIntent = new Intent();
 	       String targetActivity = STK_DIALOG_ACTIVITY_NAME;
@@ -1628,7 +1627,7 @@ public class StkAppService extends Service implements Runnable {
 	       //Set unique URI to create a new instance of activity for different slotId.
 	       Uri uriData = Uri.parse(uriString);
 
-	       if (newIntent != null) {
+	       if (newIntent != null && StkDisplayDialog) {
  	          newIntent.setClassName(this, targetActivity);
 	           newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
 	                   | Intent.FLAG_ACTIVITY_NO_HISTORY
@@ -1638,7 +1637,6 @@ public class StkAppService extends Service implements Runnable {
 	           newIntent.putExtra(SLOT_ID, slotId);
 	           newIntent.setData(uriData);
 	           startActivity(newIntent);
-           }
         }
     }
 
